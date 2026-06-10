@@ -15,6 +15,11 @@ export interface AuthUser {
   photoURL: string | null;
 }
 
+export interface SignInResult {
+  user: AuthUser;
+  accessToken: string | null;
+}
+
 function mapUser(user: User): AuthUser {
   return {
     uid: user.uid,
@@ -29,10 +34,16 @@ function getAuthInstance() {
 }
 
 const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope("https://www.googleapis.com/auth/gmail.readonly");
 
-export async function signInWithGoogle(): Promise<AuthUser> {
+export async function signInWithGoogle(): Promise<SignInResult> {
   const result = await signInWithPopup(getAuthInstance(), googleProvider);
-  return mapUser(result.user);
+  const credential = GoogleAuthProvider.credentialFromResult(result);
+
+  return {
+    user: mapUser(result.user),
+    accessToken: credential?.accessToken ?? null,
+  };
 }
 
 export async function signOut(): Promise<void> {

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface TopNavProps {
@@ -28,11 +29,17 @@ function getInitials(name: string | null, email: string | null): string {
 }
 
 export default function TopNav({ title, description, action }: TopNavProps) {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, signOut } = useAuth();
 
   const displayName = user?.displayName ?? "User";
   const email = user?.email ?? "";
   const initials = getInitials(user?.displayName ?? null, user?.email ?? null);
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/login");
+  };
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-8">
@@ -70,6 +77,14 @@ export default function TopNav({ title, description, action }: TopNavProps) {
               {initials}
             </div>
           )}
+
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+          >
+            Sign Out
+          </button>
         </div>
       </div>
     </header>
