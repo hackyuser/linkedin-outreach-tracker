@@ -1,6 +1,7 @@
 "use client";
 
 import DashboardCard from "@/components/dashboard/DashboardCard";
+import GmailSyncPanel from "@/components/gmail/GmailSyncPanel";
 import { calculateDashboardMetrics } from "@/lib/dashboard-metrics";
 import { useLeads } from "@/contexts/LeadsContext";
 
@@ -26,6 +27,8 @@ export default function DashboardContent() {
 
   return (
     <div className="space-y-8">
+      <GmailSyncPanel />
+
       <section>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">
           Lead Metrics
@@ -70,9 +73,9 @@ export default function DashboardContent() {
             }
           />
           <DashboardCard
-            title="Pending Invitations"
+            title="Pending"
             value={metrics.pendingInvitations}
-            subtitle="Awaiting acceptance"
+            subtitle="Leads awaiting acceptance"
             icon={
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -80,7 +83,7 @@ export default function DashboardContent() {
             }
           />
           <DashboardCard
-            title="Accepted Invitations"
+            title="Accepted"
             value={metrics.acceptedInvitations}
             icon={
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

@@ -168,7 +168,11 @@ export async function updateLead(
     if (dateFields.invitationSentDate && !existing.invitationSentDate) {
       firestoreUpdates.invitationSentDate = dateFields.invitationSentDate;
     }
-    if (dateFields.acceptedDate && !existing.acceptedDate) {
+    if (
+      dateFields.acceptedDate &&
+      !existing.acceptedDate &&
+      updates.acceptedDate === undefined
+    ) {
       firestoreUpdates.acceptedDate = dateFields.acceptedDate;
     }
     if (dateFields.messageSentDate && !existing.messageSentDate) {

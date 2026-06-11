@@ -10,3 +10,9 @@ export {
   updateLeadStatus,
   deleteLead,
 } from "./firestore";
+export {
+  getProcessedGmailMessageIds,
+  isGmailMessageProcessed,
+  markGmailMessageProcessed,
+  processedMessageDocId,
+} from "./processedMessages";

@@ -24,6 +24,7 @@ export interface GmailMessageDetailResponse {
 
 export interface GmailMessageSummary {
   id: string;
+  threadId: string;
   subject: string;
   from: string;
   date: string;
@@ -32,8 +33,12 @@ export interface GmailMessageSummary {
 
 const GMAIL_API_BASE = "https://gmail.googleapis.com/gmail/v1/users/me";
 export const LINKEDIN_GMAIL_QUERY = "from:(linkedin.com)";
+export const ACCEPTANCE_GMAIL_QUERY =
+  'from:(linkedin.com) subject:("accepted your invitation")';
 export const LINKEDIN_MESSAGE_LIST_MAX_RESULTS = 50;
 export const MESSAGE_DETAIL_FETCH_LIMIT = 20;
+export const ACCEPTANCE_MESSAGE_LIST_MAX_RESULTS = 50;
+export const ACCEPTANCE_DETAIL_FETCH_LIMIT = 50;
 const DETAIL_FETCH_DELAY_MS = 250;
 const MAX_RATE_LIMIT_RETRIES = 3;
 
@@ -126,6 +131,7 @@ export function parseGmailMessageDetail(
 
   return {
     id: detail.id,
+    threadId: detail.threadId,
     subject: getHeader(headers, "Subject") || "(No subject)",
     from: getHeader(headers, "From") || "—",
     date: getHeader(headers, "Date") || "—",
@@ -262,6 +268,30 @@ export async function fetchGmailMessageSummaries(
   const messageIds =
     list.messages?.map((message) => message.id).slice(0, MESSAGE_DETAIL_FETCH_LIMIT) ??
     [];
+
+  if (messageIds.length === 0) {
+    return [];
+  }
+
+  const details = await fetchMessageDetailsSequentially(accessToken, messageIds);
+  const summaries = details.map(parseGmailMessageDetail);
+  const linkedInMessages = filterLinkedInMessages(summaries);
+
+  return sortMessagesByNewest(linkedInMessages);
+}
+
+export async function fetchGmailAcceptanceSummaries(
+  accessToken: string
+): Promise<GmailMessageSummary[]> {
+  const list = await fetchGmailMessages(accessToken, {
+    query: ACCEPTANCE_GMAIL_QUERY,
+    maxResults: ACCEPTANCE_MESSAGE_LIST_MAX_RESULTS,
+  });
+
+  const messageIds =
+    list.messages
+      ?.map((message) => message.id)
+      .slice(0, ACCEPTANCE_DETAIL_FETCH_LIMIT) ?? [];
 
   if (messageIds.length === 0) {
     return [];

@@ -17,10 +17,8 @@ export function calculateDashboardMetrics(leads: Lead[]): DashboardMetrics {
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const invitationsSent = leads.filter((l) => l.invitationSentDate !== null).length;
-  const acceptedInvitations = leads.filter((l) => l.acceptedDate !== null).length;
-  const pendingInvitations = leads.filter(
-    (l) => l.invitationSentDate !== null && l.acceptedDate === null
-  ).length;
+  const pendingInvitations = leads.filter((l) => l.status === "Pending").length;
+  const acceptedInvitations = leads.filter((l) => l.status === "Accepted").length;
 
   const newLeadsAdded = leads.filter(
     (l) => new Date(l.createdAt) >= thirtyDaysAgo
