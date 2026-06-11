@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { LeadFormData } from "@/types/lead";
 import { LEAD_STATUSES } from "@/types/lead";
-import { useLeads } from "@/hooks/useLeads";
+import { useLeads } from "@/contexts/LeadsContext";
 
 const initialFormData: LeadFormData = {
   fullName: "",

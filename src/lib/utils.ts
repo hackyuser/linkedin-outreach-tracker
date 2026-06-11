@@ -11,6 +11,7 @@ export function formatDate(dateString: string | null): string {
 
 export function getStatusColor(status: LeadStatus): string {
   const colors: Record<LeadStatus, string> = {
+    Pending: "bg-orange-100 text-orange-800",
     "Lead Added": "bg-slate-100 text-slate-700",
     "Invitation Sent": "bg-amber-100 text-amber-800",
     Accepted: "bg-emerald-100 text-emerald-800",

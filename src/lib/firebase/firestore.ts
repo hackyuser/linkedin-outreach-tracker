@@ -9,12 +9,14 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  writeBatch,
   type DocumentData,
 } from "firebase/firestore";
-import type { Lead, LeadStatus } from "@/types/lead";
+import type { BulkImportResult, Lead, LeadImportRow, LeadStatus } from "@/types/lead";
 import { getFirebaseApp } from "./config";
 
 const COLLECTION_NAME = "leads";
+const BATCH_SIZE = 500;
 
 /** Fields that must never be written by client update payloads */
 const IMMUTABLE_LEAD_FIELDS = ["id", "userId", "createdAt"] as const;
@@ -218,4 +220,87 @@ export async function deleteLead(
   }
 
   await deleteDoc(doc(getDb(), COLLECTION_NAME, leadId));
+}
+
+function importRowToFirestoreDoc(
+  userId: string,
+  row: LeadImportRow,
+  now: string,
+  importBatchId: string
+) {
+  return {
+    userId,
+    fullName: row.fullName,
+    company: row.company,
+    designation: "",
+    linkedinUrl: row.linkedinUrl,
+    status: "Pending" as LeadStatus,
+    notes: "",
+    source: "import",
+    importBatchId,
+    invitationSentDate: null,
+    acceptedDate: null,
+    messageSentDate: null,
+    replyDate: null,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+export async function createLeadsBulk(
+  userId: string,
+  rows: LeadImportRow[],
+  importBatchId: string
+): Promise<BulkImportResult> {
+  assertUserId(userId);
+
+  const result: BulkImportResult = {
+    successCount: 0,
+    failureCount: 0,
+    failures: [],
+  };
+
+  if (rows.length === 0) {
+    return result;
+  }
+
+  const db = getDb();
+  const collectionRef = collection(db, COLLECTION_NAME);
+  const now = new Date().toISOString();
+
+  for (let i = 0; i < rows.length; i += BATCH_SIZE) {
+    const chunk = rows.slice(i, i + BATCH_SIZE);
+    const batch = writeBatch(db);
+
+    try {
+      for (const row of chunk) {
+        const docRef = doc(collectionRef);
+        batch.set(
+          docRef,
+          importRowToFirestoreDoc(userId, row, now, importBatchId)
+        );
+      }
+      await batch.commit();
+      result.successCount += chunk.length;
+    } catch {
+      for (const row of chunk) {
+        try {
+          await addDoc(
+            collectionRef,
+            importRowToFirestoreDoc(userId, row, now, importBatchId)
+          );
+          result.successCount += 1;
+        } catch (err) {
+          result.failureCount += 1;
+          result.failures.push({
+            rowNumber: row.rowNumber,
+            message:
+              err instanceof Error ? err.message : "Failed to create lead",
+          });
+        }
+      }
+    }
+  }
+
+  return result;
 }

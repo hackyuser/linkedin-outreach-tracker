@@ -12,7 +12,7 @@ import {
 } from "@/lib/firebase";
 import { useAuth } from "@/contexts/AuthContext";
 
-export function useLeads() {
+export function useLeadsInternal() {
   const { user } = useAuth();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);

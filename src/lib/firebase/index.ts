@@ -5,6 +5,7 @@ export {
   getLeads,
   getLeadById,
   createLead,
+  createLeadsBulk,
   updateLead,
   updateLeadStatus,
   deleteLead,

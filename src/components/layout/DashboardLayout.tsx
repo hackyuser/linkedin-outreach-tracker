@@ -1,6 +1,7 @@
 import Sidebar from "./Sidebar";
 import TopNav from "./TopNav";
 import AuthGuard from "@/components/auth/AuthGuard";
+import { LeadsProvider } from "@/contexts/LeadsContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -20,13 +21,15 @@ export default function DashboardLayout({
 }: DashboardLayoutProps) {
   return (
     <AuthGuard>
-      <div className="flex h-screen bg-slate-50">
-        <Sidebar />
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <TopNav title={title} description={description} action={action} />
-          <main className="flex-1 overflow-y-auto p-8">{children}</main>
+      <LeadsProvider>
+        <div className="flex h-screen bg-slate-50">
+          <Sidebar />
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <TopNav title={title} description={description} action={action} />
+            <main className="flex-1 overflow-y-auto p-8">{children}</main>
+          </div>
         </div>
-      </div>
+      </LeadsProvider>
     </AuthGuard>
   );
 }

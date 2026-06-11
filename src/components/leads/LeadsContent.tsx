@@ -1,7 +1,7 @@
 "use client";
 
 import LeadTable from "@/components/leads/LeadTable";
-import { useLeads } from "@/hooks/useLeads";
+import { useLeads } from "@/contexts/LeadsContext";
 
 export default function LeadsContent() {
   const { leads, loading, error, changeLeadStatus, removeLead } = useLeads();

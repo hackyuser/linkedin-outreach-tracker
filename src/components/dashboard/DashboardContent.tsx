@@ -2,7 +2,7 @@
 
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import { calculateDashboardMetrics } from "@/lib/dashboard-metrics";
-import { useLeads } from "@/hooks/useLeads";
+import { useLeads } from "@/contexts/LeadsContext";
 
 export default function DashboardContent() {
   const { leads, loading, error } = useLeads();
